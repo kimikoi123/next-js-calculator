@@ -42,7 +42,7 @@ export default function CalculatorContextProvider({
   }, [])
 
   async function loadHistory() {
-    const response = await fetch("http://localhost:5000/app/histories")
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/app/histories`)
     const jsonData = await response.json()
 
     const data = jsonData.map((item: HistoryProps) => ({
@@ -52,7 +52,7 @@ export default function CalculatorContextProvider({
   }
 
   async function createUser(username: string) {
-    const user = await fetch("http://localhost:5000/app/user", {
+    const user = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/app/user`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username }),
@@ -60,14 +60,14 @@ export default function CalculatorContextProvider({
   }
 
   async function deleteHistory() {
-    const save = await fetch(`http://localhost:5000/app/histories`, {
+    const save = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/app/histories`, {
       method: "DELETE",
     })
   }
 
   async function getUser() {
     try {
-      const response = await fetch("http://localhost:5000/app/user")
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/app/user`)
       const jsonData = await response.json()
       return jsonData
     } catch (err: any) {
@@ -78,7 +78,7 @@ export default function CalculatorContextProvider({
   async function saveHistory(calculation: string) {
     const uuid = "61bb6bb7-bf44-4225-b121-a197c8442682"
 
-    const save = await fetch("http://localhost:5000/app/histories", {
+    const save = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/app/histories`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ calculation, uuid }),

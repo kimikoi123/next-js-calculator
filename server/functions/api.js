@@ -1,13 +1,16 @@
 require("dotenv").config()
 const express = require("express")
+const serverless = require("serverless-http")
 const app = express()
 const cors = require("cors")
 const pool = require("./db")
 
-app.use(cors())
-app.use(express.json())
+const router = express.Router()
 
-app.post("/app/user", async (req, res) => {
+router.use(cors())
+router.use(express.json())
+
+router.post("/app/user", async (req, res) => {
   try {
     const { username } = await req.body
     const newUser = await pool.query(
@@ -21,14 +24,14 @@ app.post("/app/user", async (req, res) => {
   }
 })
 
-app.get("app/user", async (req, res) => {
+router.get("app/user", async (req, res) => {
   const { username } = req.body
   const user = await pool.query("SELECT * FROM users WHERE name = $1", [
     username,
   ])
 })
 
-app.get("/app/user/:uuid/transaction", async (req, res) => {
+router.get("/app/user/:uuid/transaction", async (req, res) => {
   const { uuid } = req.params
 
   try {
@@ -42,7 +45,7 @@ app.get("/app/user/:uuid/transaction", async (req, res) => {
   }
 })
 
-app.post("/app/histories", async (req, res) => {
+router.post("/app/histories", async (req, res) => {
   const { calculation, uuid } = req.body
   const timestamp = Date.now()
   const newHistory = await pool.query(
@@ -53,7 +56,7 @@ app.post("/app/histories", async (req, res) => {
   res.json(newHistory)
 })
 
-app.get("/app/histories", async (req, res) => {
+router.get("/app/histories", async (req, res) => {
   try {
     const history = await pool.query("SELECT * FROM histories")
     res.json(history.rows)
@@ -62,7 +65,7 @@ app.get("/app/histories", async (req, res) => {
   }
 })
 
-app.delete("/app/histories", async (req, res) => {
+router.delete("/app/histories", async (req, res) => {
     try {
         const history = await pool.query("DELETE FROM histories")
         res.json(history.rows)
@@ -71,6 +74,13 @@ app.delete("/app/histories", async (req, res) => {
     }
 })
 
-app.listen(5000, () => {
-  console.log("server has started")
+router.get('/', (req, res) => {
+  res.json({
+    'hi' : 'hello'
+  })
 })
+
+
+app.use('/.netlify/functions/api',router)
+
+module.exports.handler = serverless(app)
